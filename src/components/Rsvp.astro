@@ -13,28 +13,38 @@ const rsvpEnabled = features.rsvp;
         <p class="mil-label">Canal de confirmación</p>
         <h2 id="rsvp-title" class="rsvp__title">Anunciate en el puesto de mando</h2>
         <p class="rsvp__intro">
-          Confirmá tu asistencia antes de {rsvp.deadlineLabel}. Esta planilla se completa en tu
-          navegador: no viaja a ningún servidor ni a ninguna base de datos.
+          Confirmá tu asistencia antes de {rsvp.deadlineLabel}.{' '}
+          {features.telegram
+            ? 'Tu confirmación viaja al servidor del sitio y desde ahí le llega al anfitrión.'
+            : 'Esta planilla se completa en tu navegador: no viaja a ningún servidor ni a ninguna base de datos.'}
         </p>
 
         <noscript>
           <p class="rsvp__noscript panel">
-            Este formulario se resuelve en tu navegador, así que necesita JavaScript. Para
-            confirmar, escribile a {rsvp.contactName} por{' '}
+            {features.telegram
+              ? 'Este formulario necesita JavaScript para enviar tu confirmación al anfitrión.'
+              : 'Este formulario se resuelve en tu navegador, así que necesita JavaScript.'}{' '}
+            Para confirmar, escribile a {rsvp.contactName} por{' '}
             <a href={rsvp.whatsappUrl} rel="noopener noreferrer">WhatsApp</a>, al teléfono{' '}
             {rsvp.contactPhone} o a {rsvp.contactEmail}, antes de {rsvp.deadlineLabel}.
           </p>
         </noscript>
 
-        <form class="rsvp__form panel reveal" data-rsvp-form novalidate>
+        <form
+          class="rsvp__form panel reveal"
+          data-rsvp-form
+          data-rsvp-telegram={features.telegram ? 'true' : 'false'}
+          data-rsvp-state="idle"
+          novalidate
+        >
           <div class="rsvp__errors" data-rsvp-errors role="alert" tabindex="-1" hidden>
             <p class="rsvp__errors-title">Revisá estos datos antes de enviar:</p>
             <ul class="rsvp__errors-list">
               <li data-rsvp-error-summary="name" hidden>
                 <a href="#rsvp-name">Poné tu nombre y apellido.</a>
               </li>
-              <li data-rsvp-error-summary="guests" hidden>
-                <a href="#rsvp-guests">Indicá cuántas personas vienen con vos (entre 0 y 10).</a>
+              <li data-rsvp-error-summary="drinks" hidden>
+                <a href="#rsvp-drinks">Contá qué vas a traer para tomar.</a>
               </li>
               <li data-rsvp-error-summary="contact" hidden>
                 <a href="#rsvp-contact">Dejá un teléfono o un email de contacto.</a>
@@ -62,22 +72,22 @@ const rsvpEnabled = features.rsvp;
           </div>
 
           <div class="rsvp__field">
-            <label class="rsvp__label" for="rsvp-guests">¿Cuántas personas vienen con vos?</label>
+            <label class="rsvp__label" for="rsvp-drinks">¿Qué vas a traer para tomar?</label>
             <input
               class="rsvp__input"
-              id="rsvp-guests"
-              name="guests"
-              type="number"
-              min="0"
-              max="10"
-              step="1"
-              inputmode="numeric"
+              id="rsvp-drinks"
+              name="drinks"
+              type="text"
               required
-              aria-describedby="rsvp-guests-hint rsvp-guests-error"
+              autocomplete="off"
+              maxlength="80"
+              aria-describedby="rsvp-drinks-hint rsvp-drinks-error"
             />
-            <p class="rsvp__hint" id="rsvp-guests-hint">Entre 0 y 10 personas.</p>
-            <p class="rsvp__error" id="rsvp-guests-error" data-rsvp-field-error="guests" hidden>
-              Indicá cuántas personas vienen con vos (entre 0 y 10).
+            <p class="rsvp__hint" id="rsvp-drinks-hint">
+              Así no se repiten las bebidas. Si todavía no sabés, podés poner "a definir".
+            </p>
+            <p class="rsvp__error" id="rsvp-drinks-error" data-rsvp-field-error="drinks" hidden>
+              Contá qué vas a traer para tomar.
             </p>
           </div>
 
@@ -127,13 +137,37 @@ const rsvpEnabled = features.rsvp;
             </p>
           </div>
 
-          <button class="rsvp__submit" type="submit">Enviar confirmación</button>
+          <!-- Honeypot: hidden from sight and from the accessibility tree, and
+               outside the tab order. Only a naive bot fills it. -->
+          <div class="rsvp__honeypot sr-only" aria-hidden="true">
+            <label for="rsvp-website">No completar este campo</label>
+            <input
+              id="rsvp-website"
+              name="website"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+              data-rsvp-honeypot
+            />
+          </div>
+
+          <p class="rsvp__status" data-rsvp-status role="status" hidden></p>
+
+          <button class="rsvp__submit" type="submit" data-rsvp-submit>Enviar confirmación</button>
         </form>
 
-        <div class="rsvp__ack panel" data-rsvp-ack tabindex="-1" hidden>
-          <p class="rsvp__ack-status phosphor-glow">OPERADOR REGISTRADO</p>
+        <div
+          class="rsvp__ack panel"
+          data-rsvp-ack
+          data-rsvp-ack-state="local"
+          tabindex="-1"
+          hidden
+        >
+          <p class="rsvp__ack-status phosphor-glow" data-rsvp-ack-status>OPERADOR REGISTRADO</p>
           <p class="rsvp__ack-name">
-            <span class="rsvp__ack-value" data-rsvp-ack-name></span> — asistencia confirmada.
+            <span class="rsvp__ack-value" data-rsvp-ack-name></span><span data-rsvp-ack-suffix
+              > — asistencia confirmada.</span
+            >
           </p>
           <p class="rsvp__ack-detail">Ventana de confirmación: {rsvp.deadlineLabel}</p>
           <p class="rsvp__ack-fallback">
@@ -289,12 +323,33 @@ const rsvpEnabled = features.rsvp;
     background-color: var(--panel);
   }
 
+  .rsvp__submit:disabled {
+    cursor: progress;
+    opacity: 0.65;
+  }
+
+  .rsvp__status {
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--phos-dim);
+  }
+
   .rsvp__ack {
     display: grid;
     gap: var(--space-3);
     margin-top: var(--space-4);
     padding: var(--space-5);
     border-left: 3px solid var(--phos);
+  }
+
+  .rsvp__ack[data-rsvp-ack-state='fallback'] {
+    border-left-color: var(--alert);
+  }
+
+  .rsvp__ack[data-rsvp-ack-state='fallback'] .rsvp__ack-status {
+    color: var(--alert);
   }
 
   .rsvp__ack-status {
@@ -336,19 +391,48 @@ const rsvpEnabled = features.rsvp;
 </style>
 
 <script>
-  type FieldName = 'name' | 'guests' | 'contact' | 'attend';
+  type FieldName = 'name' | 'drinks' | 'contact' | 'attend';
 
   const FIELD_IDS: Record<FieldName, string> = {
     name: 'rsvp-name',
-    guests: 'rsvp-guests',
+    drinks: 'rsvp-drinks',
     contact: 'rsvp-contact',
     attend: 'rsvp-attend',
   };
 
-  const FIELD_NAMES: FieldName[] = ['name', 'guests', 'contact', 'attend'];
+  const FIELD_NAMES: FieldName[] = ['name', 'drinks', 'contact', 'attend'];
 
-  const GUEST_MIN = 0;
-  const GUEST_MAX = 10;
+  const REQUEST_TIMEOUT_MS = 10000;
+
+  type AckState = 'local' | 'delivered' | 'fallback';
+
+  /** Acknowledgement copy per outcome; the local text is unchanged by design. */
+  const ACK_COPY: Record<AckState, { status: string; suffix: string; action: string }> = {
+    local: {
+      status: 'OPERADOR REGISTRADO',
+      suffix: ' — asistencia confirmada.',
+      action: 'Editar respuesta',
+    },
+    delivered: {
+      status: 'TRANSMISIÓN ENTREGADA',
+      suffix: ' — tu confirmación llegó al anfitrión.',
+      action: 'Editar respuesta',
+    },
+    fallback: {
+      status: 'TRANSMISIÓN INTERRUMPIDA',
+      suffix: ' — no pudimos entregar tu confirmación al anfitrión.',
+      action: 'Reintentar envío',
+    },
+  };
+
+  interface RsvpPayload {
+    name: string;
+    drinks: string;
+    contact: string;
+    message: string;
+    elapsedMs: number;
+    honeypot: string;
+  }
 
   interface RsvpHandle {
     destroy: () => void;
@@ -368,20 +452,10 @@ const rsvpEnabled = features.rsvp;
       return !control.checked;
     }
 
-    const value = control.value.trim();
-    if (value === '') {
-      return true;
-    }
-
-    if (name === 'guests') {
-      const parsed = Number(value);
-      return !Number.isInteger(parsed) || parsed < GUEST_MIN || parsed > GUEST_MAX;
-    }
-
-    return false;
+    return control.value.trim() === '';
   }
 
-  /** Simulated submission: the form is validated and swapped, never sent. */
+  /** Wires validation, optional server delivery and the acknowledgement swap. */
   function initRsvpForm(): void {
     const host = window as RsvpWindow;
     host.__rsvpFormHandle?.destroy();
@@ -396,9 +470,30 @@ const rsvpEnabled = features.rsvp;
     const form: HTMLFormElement = maybeForm;
 
     const ack = document.querySelector<HTMLElement>('[data-rsvp-ack]');
+    const ackStatus = document.querySelector<HTMLElement>('[data-rsvp-ack-status]');
     const ackName = document.querySelector<HTMLElement>('[data-rsvp-ack-name]');
+    const ackSuffix = document.querySelector<HTMLElement>('[data-rsvp-ack-suffix]');
     const editButton = document.querySelector<HTMLButtonElement>('[data-rsvp-edit]');
     const summary = document.querySelector<HTMLElement>('[data-rsvp-errors]');
+    const submitButton = document.querySelector<HTMLButtonElement>('[data-rsvp-submit]');
+    const statusEl = document.querySelector<HTMLElement>('[data-rsvp-status]');
+    const honeypot = document.querySelector<HTMLInputElement>('[data-rsvp-honeypot]');
+    const messageControl = document.querySelector<HTMLTextAreaElement>('#rsvp-message');
+
+    const telegramEnabled = form.dataset.rsvpTelegram === 'true';
+
+    // First interaction drives `elapsedMs`; the earliest of focus, input,
+    // pointer, key or change wins, and page load is the conservative fallback
+    // for a submit that fires no interaction event at all (autofill).
+    const pageLoadAt = Date.now();
+    let firstInteractionAt: number | null = null;
+    let submitting = false;
+
+    function markInteraction(): void {
+      if (firstInteractionAt === null) {
+        firstInteractionAt = Date.now();
+      }
+    }
 
     function readControl(name: FieldName): HTMLInputElement | null {
       const node = document.getElementById(FIELD_IDS[name]);
@@ -407,7 +502,7 @@ const rsvpEnabled = features.rsvp;
 
     const controls: Record<FieldName, HTMLInputElement | null> = {
       name: readControl('name'),
-      guests: readControl('guests'),
+      drinks: readControl('drinks'),
       contact: readControl('contact'),
       attend: readControl('attend'),
     };
@@ -454,9 +549,103 @@ const rsvpEnabled = features.rsvp;
       }
     }
 
-    function handleSubmit(event: Event): void {
-      // Nothing leaves the browser: the form never navigates and never posts.
+    function guestName(): string {
+      return controls.name === null ? '' : controls.name.value.trim();
+    }
+
+    function setAckState(state: AckState): void {
+      const copy = ACK_COPY[state];
+      if (ackStatus !== null) {
+        ackStatus.textContent = copy.status;
+      }
+      if (ackSuffix !== null) {
+        ackSuffix.textContent = copy.suffix;
+      }
+      if (editButton !== null) {
+        editButton.textContent = copy.action;
+      }
+      if (ack !== null) {
+        ack.dataset.rsvpAckState = state;
+      }
+    }
+
+    function showAck(state: AckState, name: string): void {
+      if (ack === null) {
+        return;
+      }
+
+      setAckState(state);
+      // Guest input is echoed as text, never as markup.
+      if (ackName !== null) {
+        ackName.textContent = name;
+      }
+
+      form.hidden = true;
+      ack.hidden = false;
+      ack.focus();
+    }
+
+    function setSending(sending: boolean): void {
+      submitting = sending;
+      form.dataset.rsvpState = sending ? 'sending' : 'idle';
+      if (submitButton !== null) {
+        submitButton.disabled = sending;
+      }
+      if (statusEl !== null) {
+        statusEl.textContent = sending ? 'Transmitiendo confirmación…' : '';
+        statusEl.hidden = !sending;
+      }
+    }
+
+    function collectPayload(): RsvpPayload | null {
+      const { name, drinks, contact } = controls;
+      if (name === null || drinks === null || contact === null) {
+        return null;
+      }
+
+      return {
+        name: name.value.trim(),
+        drinks: drinks.value.trim(),
+        contact: contact.value.trim(),
+        message: messageControl === null ? '' : messageControl.value.trim(),
+        elapsedMs: Date.now() - (firstInteractionAt ?? pageLoadAt),
+        honeypot: honeypot === null ? '' : honeypot.value,
+      };
+    }
+
+    async function transmit(payload: RsvpPayload): Promise<boolean> {
+      try {
+        const response = await fetch('/api/rsvp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+        });
+
+        if (!response.ok) {
+          return false;
+        }
+
+        const body: unknown = await response.json();
+        if (typeof body !== 'object' || body === null || !('ok' in body) || body.ok !== true) {
+          return false;
+        }
+
+        // A silent drop answers 200 with `delivered: false`; an absent flag still
+        // means the confirmation reached the host.
+        return !('delivered' in body) || body.delivered !== false;
+      } catch {
+        // Network error, timeout or an unreadable body all mean: not delivered.
+        return false;
+      }
+    }
+
+    async function handleSubmit(event: Event): Promise<void> {
       event.preventDefault();
+      if (submitting) {
+        return;
+      }
+
       attempted = true;
 
       const invalidNames = refresh();
@@ -467,23 +656,22 @@ const rsvpEnabled = features.rsvp;
         return;
       }
 
-      showAck();
-    }
-
-    function showAck(): void {
-      if (ack === null) {
+      // Telegram disabled: keep today's local acknowledgement and send nothing.
+      if (!telegramEnabled) {
+        showAck('local', guestName());
         return;
       }
 
-      const nameControl = controls.name;
-      if (ackName !== null) {
-        // Guest input is echoed as text, never as markup.
-        ackName.textContent = nameControl === null ? '' : nameControl.value.trim();
+      const payload = collectPayload();
+      if (payload === null) {
+        showAck('fallback', guestName());
+        return;
       }
 
-      form.hidden = true;
-      ack.hidden = false;
-      ack.focus();
+      setSending(true);
+      const delivered = await transmit(payload);
+      setSending(false);
+      showAck(delivered ? 'delivered' : 'fallback', payload.name);
     }
 
     function handleEdit(): void {
@@ -494,6 +682,7 @@ const rsvpEnabled = features.rsvp;
       // The form is never reset, so the typed values come back untouched.
       ack.hidden = true;
       form.hidden = false;
+      form.dataset.rsvpState = 'idle';
       controls.name?.focus();
     }
 
@@ -518,11 +707,21 @@ const rsvpEnabled = features.rsvp;
     function destroy(): void {
       form.removeEventListener('submit', handleSubmit);
       form.removeEventListener('input', handleInput);
+      form.removeEventListener('input', markInteraction);
+      form.removeEventListener('focusin', markInteraction);
+      form.removeEventListener('pointerdown', markInteraction);
+      form.removeEventListener('keydown', markInteraction);
+      form.removeEventListener('change', markInteraction);
       editButton?.removeEventListener('click', handleEdit);
     }
 
     form.addEventListener('submit', handleSubmit);
     form.addEventListener('input', handleInput);
+    form.addEventListener('input', markInteraction);
+    form.addEventListener('focusin', markInteraction);
+    form.addEventListener('pointerdown', markInteraction);
+    form.addEventListener('keydown', markInteraction);
+    form.addEventListener('change', markInteraction);
     editButton?.addEventListener('click', handleEdit);
 
     host.__rsvpFormHandle = { destroy };

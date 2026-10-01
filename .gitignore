@@ -7,3 +7,17 @@ node_modules/
 # Astro build output and generated types
 dist/
 .astro/
+
+# Vercel local project state
+.vercel/
+
+# Local environment files. Real values live in the hosting environment.
+.env
+.env.*
+.envrc*
+!.env.example
+
+# Editor and direnv backups that can copy a secret-bearing file
+*~
+\#*#
+.#*

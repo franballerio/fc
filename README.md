@@ -126,31 +126,51 @@ for **Production**, **Preview** and **Development**:
 | `TELEGRAM_API_BASE` | optional, defaults to `https://api.telegram.org` |
 
 Never commit the token, paste it into an issue, or put it in `.env.example`. The
-repository ignores `.env` and `.env.*`; the host environment is the only place the
-real values should live.
+repository ignores `.env`, `.env.*` (except `.env.example`), `.envrc*`, `.vercel/`
+and common editor backups (`*~`, `#*#`, `.#*`); the host environment is the only
+place the real values should live.
 
 ### 5. Test locally against a fake
 
 `TELEGRAM_API_BASE` exists so the endpoint can be exercised without touching a real
 chat. Point it at a local fake that accepts `POST /bot<token>/sendMessage` and returns
-`{"ok":true}`:
+`{"ok":true}`. The override is accepted only over `https://` or against loopback
+(`http://127.0.0.1`, `http://localhost`, `http://[::1]`, any port); anything else is
+treated as missing configuration and answers `500 unavailable` without an upstream
+call:
 
 ```bash
-TELEGRAM_BOT_TOKEN=test TELEGRAM_CHAT_ID=1 TELEGRAM_API_BASE=http://localhost:8787 npx vercel dev
+TELEGRAM_BOT_TOKEN=123456:test-token TELEGRAM_CHAT_ID=1 TELEGRAM_API_BASE=http://localhost:8787 npx vercel dev
 ```
 
 ### 6. Anti-spam limits
 
 The endpoint filters obvious bot traffic silently and bounds every field:
 
+- same-origin guard: a request whose `Origin` does not match the request host, and
+  that sends no `Sec-Fetch-Site: same-origin`, is answered `403 forbidden`;
 - honeypot field: any non-empty value is treated as spam;
 - minimum fill time: `elapsedMs` below 1500 ms is treated as spam;
-- field caps: name ≤ 80, contact ≤ 120, message ≤ 400, guests an integer 0–10;
-- request body capped at 8 KB, `application/json` and `POST` only.
+- field caps: name ≤ 80, drinks ≤ 80, contact ≤ 120, message ≤ 400;
+- single-line fields are normalized so a newline cannot forge an extra labelled line
+  in the Telegram message; the optional message keeps intentional line breaks but
+  loses control characters and repeated blank lines;
+- the bot token and chat id are shape-checked (`<digits>:<secret>` and an optional
+  minus sign plus digits) and a malformed value answers `500 unavailable`;
+- request body capped at 8 KB (`413` from the declared length before buffering, or
+  after reading when a chunked request omits it), `application/json` and `POST` only.
 
-Both spam checks answer with the same success response as a real delivery, so a bot
-cannot learn it was filtered. If spam still gets through, the next step is
-[Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/).
+Both spam checks answer `200` and send nothing. Their body is
+`{"ok":true,"delivered":false}`, which the page reads to avoid showing a false
+confirmation, without revealing which guard fired. A genuine delivery answers
+`{"ok":true}`.
+
+The same-origin guard raises the cost only for casual scripted abuse. `elapsedMs`
+is supplied by the client and is therefore cosmetic, and an `Origin` header is
+trivial to forge outside a browser. The effective next steps are a per-IP rate
+limit at the edge or
+[Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) in front of the
+form.
 
 ## Project structure
 
@@ -179,9 +199,9 @@ The page is written to stay readable without JavaScript:
   layers are `aria-hidden` and the code-rain canvas renders one static frame.
 - The RSVP form validates in the browser with real labels, `aria-invalid` and an
   error summary. With `features.telegram` enabled, only a valid submit posts to the
-  same-origin `/api/rsvp`; if that request fails, the page falls back to the contact
-  channels. With the flag off, the acknowledgement is rendered locally and nothing
-  leaves the browser.
+  same-origin `/api/rsvp`; if that request fails or the server reports it delivered
+  nothing, the page falls back to the contact channels. With the flag off, the
+  acknowledgement is rendered locally and nothing leaves the browser.
 - Audio is muted by default and only starts inside the guest's click.
 
 ## Notes
