@@ -24,7 +24,7 @@ Non-goals:
 
 ## Acceptance criteria
 
-1. `npm run build` produces a static `dist/` with no build errors and no TypeScript errors.
+1. `pnpm build` produces a static `dist/` with no build errors and no TypeScript errors.
 2. Editing exactly one module (`src/config/invitation.ts`) updates every invitation datum
    (host, age, date, time, place, address, RSVP deadline, contact) across the page.
 3. Scrolling from the hero into the second section plays a decrypt/reveal sequence that ends

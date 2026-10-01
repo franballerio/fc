@@ -12,17 +12,23 @@ No tracking.
 ## Requirements
 
 - Node.js 20 or newer (developed on 22)
-- npm
+- pnpm 12 (the version is pinned in `package.json` under `packageManager`, so
+  Corepack and Vercel both use it). `package-lock.json` is intentionally absent:
+  pnpm is the only package manager for this repository.
 
 ## Quick start
 
 ```bash
-npm install
-npm run dev        # local dev server with hot reload
-npm run build      # static output into dist/
-npm run preview    # serve the built output locally
-npm run check      # astro check: types and template diagnostics
+pnpm install
+pnpm dev        # local dev server with hot reload
+pnpm build      # static output into dist/
+pnpm preview    # serve the built output locally
+pnpm check      # astro check: types and template diagnostics
 ```
+
+CI and Vercel run `pnpm install --frozen-lockfile`. Run the same command locally
+before pushing a dependency change: it fails if `pnpm-lock.yaml` and
+`package.json` disagree, instead of silently resolving a different tree.
 
 ## Edit your invitation
 
@@ -71,7 +77,7 @@ The build is plain static files, so any static host works.
    canonical and Open Graph tags are correct. Also replace `public/og-placeholder.svg`
    with a real image (PNG or JPG, 1200×630) and point `og:image` at it — most social
    platforms do not render SVG previews.
-2. Run `npm run build`.
+2. Run `pnpm build`.
 3. Publish the `dist/` directory:
 
 ```bash
@@ -84,10 +90,13 @@ Any static server works too: without the function the page loads normally and th
 RSVP form falls back to the contact channels instead of delivering.
 
 **Vercel notes.** Deploy the project root, not just `dist/`, so the `api/` Function
-is included. Vercel selects the package manager by lockfile priority and prefers
-`pnpm-lock.yaml` over `package-lock.json` when both exist, so remove the extra
-lockfile or adopt pnpm deliberately. Set the Telegram variables described below for
-Production, Preview and Development.
+is included. Vercel reads `pnpm-lock.yaml` and runs `pnpm install --frozen-lockfile`
+using the version pinned in `packageManager`; do not leave a `package-lock.json`
+behind, or Vercel switches back to npm. `pnpm-workspace.yaml` holds the pnpm
+settings (it is not only for monorepos) and sets `allowBuilds: esbuild: false`:
+esbuild's platform binary ships as an optional dependency, so skipping its
+postinstall script is safe and keeps third-party install scripts from running.
+Set the Telegram variables described below for Production, Preview and Development.
 
 ## Telegram notifications
 
