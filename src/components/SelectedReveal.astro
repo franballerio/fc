@@ -1,0 +1,181 @@
+---
+import { invitation } from '../config/invitation';
+
+const { copy } = invitation;
+
+/*
+ * The message ships as one cell per character so the decrypt script can swap
+ * cell text without rebuilding the DOM, and so the final state is legible with
+ * no JavaScript at all. Spaces stay in the array and render as empty cells.
+ */
+const messageCells = Array.from(copy.selectedMessage);
+---
+
+<section id="selected" class="selected" aria-labelledby="selected-title" data-selected-reveal>
+  <div class="selected__stage">
+    <div class="shell selected__inner">
+      <p class="mil-label selected__kicker">Transmisión entrante</p>
+
+      <h2 id="selected-title" class="selected__message">
+        {/* Decorative glyph layer: the accessible name lives in the sr-only copy. */}
+        <span class="selected__glyphs" data-selected-glyphs aria-hidden="true">
+          {
+            messageCells.map((character) => (
+              <span class="selected__glyph" data-selected-glyph>{character}</span>
+            ))
+          }
+        </span>
+        <span class="sr-only">{copy.selectedMessage}</span>
+      </h2>
+
+      <div class="selected__readout" aria-hidden="true">
+        <span class="selected__meter">
+          <span class="selected__meter-fill" data-selected-meter style="width: 100%"></span>
+        </span>
+        <span class="selected__percent" data-selected-percent>100%</span>
+      </div>
+
+      <p class="selected__tail" data-selected-tail>
+        {copy.selectedMessageTail}
+        <span class="caret" aria-hidden="true">▌</span>
+      </p>
+
+      <p class="selected__actions" data-selected-cta>
+        <a class="selected__cta" href="#briefing">Ver el briefing de la misión</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+   * Tall wrapper plus sticky stage: the decrypt plays while the guest keeps
+   * scrolling, and the CRT scanline overlay above it turns the swap into a
+   * terminal readout instead of a plain fade.
+   */
+  .selected {
+    position: relative;
+    min-height: 200svh;
+  }
+
+  .selected__stage {
+    position: sticky;
+    top: 0;
+    display: grid;
+    align-items: center;
+    min-height: 100svh;
+    padding-block: var(--space-8);
+  }
+
+  .selected__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .selected__kicker {
+    align-self: flex-start;
+  }
+
+  .selected__message {
+    margin: 0;
+    color: var(--phos);
+    font-size: var(--step-3);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: var(--leading-tight);
+    text-transform: uppercase;
+    text-shadow: 0 0 0.4em var(--phos-glow);
+  }
+
+  /*
+   * Fixed cells keep the line from reflowing while scrambled glyphs change: the
+   * katakana in the scramble alphabet are wider than the Latin target text.
+   */
+  .selected__glyphs {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .selected__glyph {
+    flex: 0 0 1ch;
+    padding-block: 0.06em;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .selected__readout {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: 24rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.18em;
+    color: var(--phos-dim);
+  }
+
+  .selected__meter {
+    flex: 1;
+    height: 0.4rem;
+    border: 1px solid var(--line);
+    background-color: var(--panel-strong);
+  }
+
+  .selected__meter-fill {
+    display: block;
+    height: 100%;
+    background-color: var(--phos-dim);
+    transition: width var(--dur-fast) linear;
+  }
+
+  .selected__tail {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+
+  .selected__actions {
+    margin-top: var(--space-2);
+  }
+
+  .selected__cta {
+    display: inline-block;
+    padding: var(--space-3) var(--space-5);
+    border: 1px solid var(--line-strong);
+    background-color: var(--panel);
+    color: var(--phos);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .selected__cta:hover {
+    background-color: var(--panel-strong);
+  }
+
+  /*
+   * "armed" is set by the decrypt script only when it will really animate, so
+   * the tail and the CTA stay visible with no JavaScript and under
+   * prefers-reduced-motion (where CSS also forces them back to full opacity).
+   */
+  [data-selected-state='armed'] [data-selected-tail],
+  [data-selected-state='armed'] [data-selected-cta] {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  [data-selected-state='armed'] [data-selected-tail].is-revealed,
+  [data-selected-state='armed'] [data-selected-cta].is-revealed {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+</style>
+
+<script>
+  import { initSelectedReveal } from '../scripts/selected-reveal';
+
+  initSelectedReveal();
+</script>
