@@ -76,7 +76,29 @@ name/email are available.
 
 ## Verification (T10)
 
-_Delegated to the read-only `gentle-ai-verify` agent; results recorded below when it returns._
+Delegated to the read-only `gentle-ai-verify` agent (static audit: build, config-single-source,
+inaccessibility, no-network, heading/label statics). Its report is still in flight; findings will be
+reconciled into this section when it returns.
+
+Independent runtime evidence gathered by the orchestrator with Google Chrome headless over CDP
+(throwaway drivers in `/tmp`, repo untouched, `dist/` served read-only):
+
+| Scenario | Observation | Verdict |
+| --- | --- | --- |
+| `npm run build` / `npm run check` | 1 page built; 0 errors / 0 warnings / 0 hints | PASS |
+| Scroll decrypt, mid-way | `data-selected-state="armed"`, glyphs partly scrambled (`FUISTE SELECCトLセトシ3`), meter 60 %, tail still hidden | PASS |
+| Scroll decrypt, end of wrapper | glyphs exactly `FUISTE SELECCIONADO`, meter 100 %, tail and `#briefing` CTA revealed | PASS |
+| Accessible message | `#selected-title .sr-only` text is `FUISTE SELECCIONADO`, decorative glyph layer `aria-hidden` | PASS |
+| `prefers-reduced-motion: reduce` | never armed; final message, tail and CTA visible at full opacity; no loop started | PASS |
+| JavaScript disabled | never armed; final message, tail and CTA visible; countdown board hidden and the static date sentence promoted to visible text; RSVP form hidden and the `<noscript>` contact route visible | PASS |
+| Countdown with the past placeholder date | board replaced by `El operativo ya está en marcha.`, no runaway interval | PASS |
+| RSVP invalid submit | error summary visible with 4 items, 4 fields marked `aria-invalid`, focus moved to the summary | PASS |
+| RSVP valid submit | form hidden, acknowledgement shows `OPERADOR REGISTRADO` with the typed name and the configured contacts, URL unchanged (nothing navigated, nothing sent) | PASS |
+| Audio toggle | `aria-pressed` false by default; a real pointer click flips it true and back, hidden state label keeps the accessible name single; no console error or autoplay warning | PASS |
+| Console during the whole run | no errors, no exceptions | PASS |
+
+The only runtime checks not covered: true 360 px visual overlap of the katakana glyph cells, and
+whether the sticky decrypt stage is broken by an ancestor `overflow`. Both need a human eyeball.
 
 ## Open risks carried by the workers
 
