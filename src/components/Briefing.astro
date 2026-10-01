@@ -2,7 +2,7 @@
 import { invitation } from '../config/invitation';
 import { formatCalendarDate } from '../lib/datetime';
 
-const { host, event, venue, rsvp, dressCode, copy } = invitation;
+const { host, event, venue, rsvp, dressCode, logistics, copy } = invitation;
 
 const eventDateLabel = formatCalendarDate(event.dateISO);
 const deadlineDateLabel = formatCalendarDate(rsvp.deadlineISO);
@@ -57,6 +57,16 @@ const deadlineDateLabel = formatCalendarDate(rsvp.deadlineISO);
           <span class="briefing__line">{dressCode.code}</span>
           <span class="briefing__line">{dressCode.description}</span>
         </dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Raciones</dt>
+        <dd class="briefing__value">{logistics.food}</dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Hidratación</dt>
+        <dd class="briefing__value">{logistics.drinks}</dd>
       </div>
 
       <div class="briefing__item">

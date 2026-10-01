@@ -41,6 +41,11 @@ export interface Invitation {
     code: string;
     description: string;
   };
+  /** What the host provides and what guests must bring. */
+  logistics: {
+    food: string;
+    drinks: string;
+  };
   copy: {
     codename: string;
     operationTitle: string;
@@ -58,49 +63,57 @@ export interface Invitation {
     audio: boolean;
     countdown: boolean;
     rsvp: boolean;
+    /** Send confirmations to the host's Telegram instead of keeping them local. */
+    telegram: boolean;
   };
 }
 
 export const invitation = {
   host: {
-    fullName: '[NOMBRE COMPLETO DEL CUMPLEAÑERO]',
-    nickname: '[APODO]',
-    age: 0,
+    fullName: 'Francisco Ballerio',
+    nickname: 'fb',
+    age: 23,
   },
   event: {
-    dateISO: '2000-01-01T00:00:00-03:00',
-    timeLabel: '[HORA, EJ: 21:00]',
-    tzLabel: '[ZONA HORARIA, EJ: UTC-03:00]',
-    durationLabel: '[DURACIÓN, EJ: 4 HORAS]',
+    dateISO: '2026-10-03T21:00:00-03:00',
+    timeLabel: '21:00',
+    tzLabel: 'UTC-03:00',
+    durationLabel: 'hasta lo que pinte',
   },
   venue: {
-    name: '[NOMBRE DEL LUGAR]',
-    address: '[CALLE Y NÚMERO]',
-    city: '[BARRIO, CIUDAD]',
-    mapUrl: 'https://example.invalid/mapa',
-    notes: '[NOTAS DE ACCESO, EJ: TIMBRE 3B]',
+    name: 'GEBA — Sede San Martín',
+    address: 'Quinchos de afuera',
+    city: 'Palermo, CABA',
+    mapUrl: 'https://maps.google.com/?q=GEBA+Sede+San+Martin+Palermo+CABA',
+    notes: '[PENDIENTE: cómo se llega al quincho, referencia de entrada]',
   },
   rsvp: {
-    deadlineISO: '2000-01-01T00:00:00-03:00',
-    deadlineLabel: '[FECHA LÍMITE DE CONFIRMACIÓN]',
-    contactName: '[NOMBRE DEL CONTACTO]',
-    contactPhone: '[TELÉFONO]',
-    contactEmail: '[EMAIL]',
-    whatsappUrl: 'https://example.invalid/whatsapp',
+    // Both are still pending, so the briefing shows the bracket markers on purpose.
+    deadlineISO: '[PENDIENTE: fecha límite de confirmación en ISO con offset]',
+    deadlineLabel: '[PENDIENTE: fecha límite de confirmación]',
+    contactName: '[PENDIENTE: a quién le confirman]',
+    contactPhone: '[PENDIENTE: teléfono]',
+    contactEmail: '[PENDIENTE: email]',
+    whatsappUrl: '[PENDIENTE: link de WhatsApp]',
   },
   dressCode: {
-    code: '[CÓDIGO DE VESTIMENTA]',
-    description: '[DESCRIPCIÓN DE LA VESTIMENTA]',
+    code: '[PENDIENTE: código de vestimenta]',
+    description: '[PENDIENTE: descripción de la vestimenta]',
+  },
+  logistics: {
+    food: 'Pernil y sandwichitos a la noche, en el club.',
+    drinks: 'Traé lo que vayas a tomar. Algunas bebidas las pone el anfitrión.',
   },
   copy: {
-    codename: 'OPERACIÓN [NOMBRE CLAVE]',
-    operationTitle: '[TÍTULO DE LA OPERACIÓN]',
-    heroSubtitle: '[BAJADA DEL HERO: UNA LÍNEA SOBRE LA MISIÓN]',
+    codename: 'OPERACIÓN CUMPLE DE FRAN',
+    operationTitle: 'FRANCISCO BALLERIO CUMPLE 23',
+    heroSubtitle:
+      'Sábado 3 de octubre desde las 21, en los quinchos de afuera de GEBA San Martín. Traé lo que vayas a tomar.',
     selectedMessage: 'FUISTE SELECCIONADO',
-    selectedMessageTail: '[FRASE QUE SIGUE A LA SELECCIÓN]',
-    briefingTitle: '[TÍTULO DEL BRIEFING]',
-    audioToggleOn: '[ETIQUETA CON EL AUDIO ACTIVADO]',
-    audioToggleOff: '[ETIQUETA CON EL AUDIO APAGADO]',
+    selectedMessageTail: 'Vení, no seas gorra.',
+    briefingTitle: 'BRIEFING DE LA MISIÓN',
+    audioToggleOn: 'SONIDO ACTIVADO',
+    audioToggleOff: 'SONIDO SILENCIADO',
   },
   features: {
     matrixRain: true,
@@ -108,5 +121,8 @@ export const invitation = {
     audio: true,
     countdown: true,
     rsvp: true,
+    // The RSVP endpoint needs TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in the
+    // hosting environment; false keeps confirmations local to the browser.
+    telegram: true,
   },
 } satisfies Invitation;
