@@ -213,7 +213,11 @@ The page is written to stay readable without JavaScript:
   same-origin `/api/rsvp`; if that request fails or the server reports it delivered
   nothing, the page falls back to the contact channels. With the flag off, the
   acknowledgement is rendered locally and nothing leaves the browser.
-- Audio is muted by default and only starts inside the guest's click.
+- Audio is on by default. Because browsers refuse to start sound outside a user
+  gesture, the control ships already pressed and the drone starts at the guest's
+  first tap, click or key press anywhere on the page. If the browser still
+  refuses, the control drops to the silenced state and says so. The control
+  itself steps aside when JavaScript is off, since it could never work.
 
 ## Notes
 

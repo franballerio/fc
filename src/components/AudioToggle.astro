@@ -8,27 +8,46 @@ const audioEnabled = features.audio;
 
 {
   audioEnabled && (
-    <button class="audio-toggle" type="button" aria-pressed="false" data-audio-toggle>
-      <span class="audio-toggle__icon" aria-hidden="true">
-        ◉
-      </span>
-      <span class="audio-toggle__state" data-audio-toggle-off>
-        {copy.audioToggleOff}
-      </span>
-      <span class="audio-toggle__state" data-audio-toggle-on hidden>
-        {copy.audioToggleOn}
-      </span>
-    </button>
+    <div class="audio-toggle-wrap">
+      <button
+        class="audio-toggle"
+        type="button"
+        aria-pressed="true"
+        data-audio-state="pending"
+        data-audio-toggle
+      >
+        <span class="audio-toggle__icon" aria-hidden="true">
+          ◉
+        </span>
+        <span class="audio-toggle__state" data-audio-toggle-on>
+          {copy.audioToggleOn}
+        </span>
+        <span class="audio-toggle__state" data-audio-toggle-off hidden>
+          {copy.audioToggleOff}
+        </span>
+      </button>
+      <p class="audio-toggle__hint" data-audio-toggle-hint>
+        El sonido arranca con tu primer toque.
+      </p>
+    </div>
   )
 }
 
 <style>
   /* Fixed chrome above the CRT overlay layers, but outside <main>. */
-  .audio-toggle {
+  .audio-toggle-wrap {
     position: fixed;
     right: var(--gutter);
     bottom: var(--space-5);
     z-index: var(--z-control);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
+    max-width: 16rem;
+  }
+
+  .audio-toggle {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
@@ -55,12 +74,34 @@ const audioEnabled = features.audio;
     box-shadow: 0 0 0 1px var(--phos-glow);
   }
 
+  /*
+   * Pending-state hint: visible only while the control waits for the guest's
+   * first gesture. Plain text, not a live region, so assistive tech is never
+   * interrupted by it.
+   */
+  .audio-toggle__hint {
+    max-width: 14rem;
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--olive);
+    text-align: right;
+  }
+
   .audio-toggle__icon {
     color: var(--olive);
   }
 
   .audio-toggle[aria-pressed='true'] .audio-toggle__icon {
     color: var(--phos);
+  }
+
+  /*
+   * Without JavaScript the control can never start audio and its pressed state
+   * would be a lie, so the whole control steps aside like the countdown board
+   * and the RSVP form.
+   */
+  :global(html:not(.js)) .audio-toggle-wrap {
+    display: none;
   }
 
   /*
