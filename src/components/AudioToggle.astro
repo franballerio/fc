@@ -1,0 +1,71 @@
+---
+import { invitation } from '../config/invitation';
+
+const { copy, features } = invitation;
+
+const audioEnabled = features.audio;
+---
+
+{
+  audioEnabled && (
+    <button class="audio-toggle" type="button" aria-pressed="false" data-audio-toggle>
+      <span class="audio-toggle__icon" aria-hidden="true">
+        ◉
+      </span>
+      <span class="audio-toggle__state" data-audio-toggle-off>
+        {copy.audioToggleOff}
+      </span>
+      <span class="audio-toggle__state" data-audio-toggle-on hidden>
+        {copy.audioToggleOn}
+      </span>
+    </button>
+  )
+}
+
+<style>
+  /* Fixed chrome above the CRT overlay layers, but outside <main>. */
+  .audio-toggle {
+    position: fixed;
+    right: var(--gutter);
+    bottom: var(--space-5);
+    z-index: var(--z-control);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 14rem;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background-color: var(--panel);
+    color: var(--phos);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .audio-toggle:hover {
+    background-color: var(--panel-strong);
+  }
+
+  .audio-toggle[aria-pressed='true'] {
+    border-color: var(--phos);
+    box-shadow: 0 0 0 1px var(--phos-glow);
+  }
+
+  .audio-toggle__icon {
+    color: var(--olive);
+  }
+
+  .audio-toggle[aria-pressed='true'] .audio-toggle__icon {
+    color: var(--phos);
+  }
+</style>
+
+<script>
+  import { initAudioToggle } from '../scripts/audio';
+
+  initAudioToggle();
+</script>

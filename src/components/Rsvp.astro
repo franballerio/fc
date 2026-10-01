@@ -1,0 +1,504 @@
+---
+import { invitation } from '../config/invitation';
+
+const { rsvp, features } = invitation;
+
+const rsvpEnabled = features.rsvp;
+---
+
+{
+  rsvpEnabled && (
+    <section class="rsvp" aria-labelledby="rsvp-title">
+      <div class="shell rsvp__inner">
+        <p class="mil-label">Canal de confirmación</p>
+        <h2 id="rsvp-title" class="rsvp__title">Anunciate en el puesto de mando</h2>
+        <p class="rsvp__intro">
+          Confirmá tu asistencia antes de {rsvp.deadlineLabel}. Esta planilla se completa en tu
+          navegador: no viaja a ningún servidor ni a ninguna base de datos.
+        </p>
+
+        <form class="rsvp__form panel reveal" data-rsvp-form novalidate>
+          <div class="rsvp__errors" data-rsvp-errors role="alert" tabindex="-1" hidden>
+            <p class="rsvp__errors-title">Revisá estos datos antes de enviar:</p>
+            <ul class="rsvp__errors-list">
+              <li data-rsvp-error-summary="name" hidden>
+                <a href="#rsvp-name">Poné tu nombre y apellido.</a>
+              </li>
+              <li data-rsvp-error-summary="guests" hidden>
+                <a href="#rsvp-guests">Indicá cuántas personas vienen con vos (entre 0 y 10).</a>
+              </li>
+              <li data-rsvp-error-summary="contact" hidden>
+                <a href="#rsvp-contact">Dejá un teléfono o un email de contacto.</a>
+              </li>
+              <li data-rsvp-error-summary="attend" hidden>
+                <a href="#rsvp-attend">Marcá la casilla para confirmar que venís.</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="rsvp__field">
+            <label class="rsvp__label" for="rsvp-name">Nombre y apellido</label>
+            <input
+              class="rsvp__input"
+              id="rsvp-name"
+              name="name"
+              type="text"
+              required
+              autocomplete="name"
+              aria-describedby="rsvp-name-error"
+            />
+            <p class="rsvp__error" id="rsvp-name-error" data-rsvp-field-error="name" hidden>
+              Poné tu nombre y apellido.
+            </p>
+          </div>
+
+          <div class="rsvp__field">
+            <label class="rsvp__label" for="rsvp-guests">¿Cuántas personas vienen con vos?</label>
+            <input
+              class="rsvp__input"
+              id="rsvp-guests"
+              name="guests"
+              type="number"
+              min="0"
+              max="10"
+              step="1"
+              inputmode="numeric"
+              required
+              aria-describedby="rsvp-guests-hint rsvp-guests-error"
+            />
+            <p class="rsvp__hint" id="rsvp-guests-hint">Entre 0 y 10 personas.</p>
+            <p class="rsvp__error" id="rsvp-guests-error" data-rsvp-field-error="guests" hidden>
+              Indicá cuántas personas vienen con vos (entre 0 y 10).
+            </p>
+          </div>
+
+          <div class="rsvp__field">
+            <label class="rsvp__label" for="rsvp-contact">Contacto</label>
+            <input
+              class="rsvp__input"
+              id="rsvp-contact"
+              name="contact"
+              type="text"
+              required
+              aria-describedby="rsvp-contact-hint rsvp-contact-error"
+            />
+            <p class="rsvp__hint" id="rsvp-contact-hint">
+              Teléfono o email, para ubicarte si cambia algo.
+            </p>
+            <p class="rsvp__error" id="rsvp-contact-error" data-rsvp-field-error="contact" hidden>
+              Dejá un teléfono o un email de contacto.
+            </p>
+          </div>
+
+          <div class="rsvp__field">
+            <label class="rsvp__label" for="rsvp-message">Mensaje para el anfitrión</label>
+            <textarea
+              class="rsvp__input rsvp__textarea"
+              id="rsvp-message"
+              name="message"
+              rows="3"
+              aria-describedby="rsvp-message-hint"></textarea>
+            <p class="rsvp__hint" id="rsvp-message-hint">Opcional. Va a leerlo el anfitrión.</p>
+          </div>
+
+          <div class="rsvp__field rsvp__field--check">
+            <label class="rsvp__check-label" for="rsvp-attend">
+              <input
+                class="rsvp__check"
+                id="rsvp-attend"
+                name="attend"
+                type="checkbox"
+                required
+                aria-describedby="rsvp-attend-error"
+              />
+              <span>Confirmo que voy a asistir.</span>
+            </label>
+            <p class="rsvp__error" id="rsvp-attend-error" data-rsvp-field-error="attend" hidden>
+              Marcá la casilla para confirmar que venís.
+            </p>
+          </div>
+
+          <button class="rsvp__submit" type="submit">Enviar confirmación</button>
+        </form>
+
+        <div class="rsvp__ack panel" data-rsvp-ack tabindex="-1" hidden>
+          <p class="rsvp__ack-status phosphor-glow">OPERADOR REGISTRADO</p>
+          <p class="rsvp__ack-name">
+            <span class="rsvp__ack-value" data-rsvp-ack-name></span> — asistencia confirmada.
+          </p>
+          <p class="rsvp__ack-detail">Ventana de confirmación: {rsvp.deadlineLabel}</p>
+          <p class="rsvp__ack-fallback">
+            Si necesitás cambiarlo, avisale a {rsvp.contactName}:{' '}
+            <a href={rsvp.whatsappUrl} target="_blank" rel="noopener noreferrer">WhatsApp</a> · teléfono{' '}
+            {rsvp.contactPhone} · email {rsvp.contactEmail}
+          </p>
+          <button class="rsvp__edit" type="button" data-rsvp-edit>Editar respuesta</button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .rsvp {
+    position: relative;
+    padding-block: var(--space-8);
+  }
+
+  .rsvp__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .rsvp__title {
+    font-size: var(--step-2);
+    color: var(--phos);
+    text-transform: uppercase;
+  }
+
+  .rsvp__intro {
+    max-width: var(--measure);
+    color: var(--ink);
+  }
+
+  .rsvp__form {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-4);
+    padding: var(--space-5);
+    border-left: 3px solid var(--phos-dim);
+  }
+
+  .rsvp__errors {
+    padding: var(--space-4);
+    border: 1px solid var(--alert);
+    background-color: rgba(255, 176, 0, 0.08);
+    color: var(--alert);
+    font-size: var(--step--1);
+  }
+
+  .rsvp__errors-title {
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .rsvp__errors-list {
+    margin-top: var(--space-2);
+    padding-left: var(--space-5);
+  }
+
+  .rsvp__errors-list a {
+    color: var(--alert);
+  }
+
+  .rsvp__field {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .rsvp__label {
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--phos-dim);
+  }
+
+  .rsvp__input {
+    width: 100%;
+    max-width: 32rem;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background-color: var(--panel-strong);
+    color: var(--ink);
+    font: inherit;
+  }
+
+  .rsvp__textarea {
+    min-height: 6rem;
+    resize: vertical;
+  }
+
+  .rsvp__input[aria-invalid='true'] {
+    border-color: var(--alert);
+  }
+
+  .rsvp__hint {
+    max-width: 32rem;
+    font-size: var(--step--1);
+    color: var(--olive);
+  }
+
+  .rsvp__error {
+    max-width: 32rem;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--alert);
+  }
+
+  .rsvp__field--check {
+    gap: var(--space-2);
+  }
+
+  .rsvp__check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-size: var(--step--1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .rsvp__check {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.15rem;
+    accent-color: var(--phos-dim);
+  }
+
+  .rsvp__submit,
+  .rsvp__edit {
+    justify-self: start;
+    padding: var(--space-3) var(--space-5);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background-color: var(--panel-strong);
+    color: var(--phos);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .rsvp__submit:hover,
+  .rsvp__edit:hover {
+    background-color: var(--panel);
+  }
+
+  .rsvp__ack {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+    padding: var(--space-5);
+    border-left: 3px solid var(--phos);
+  }
+
+  .rsvp__ack-status {
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--phos);
+  }
+
+  .rsvp__ack-value {
+    font-weight: 700;
+    color: var(--khaki);
+  }
+
+  .rsvp__ack-detail,
+  .rsvp__ack-fallback {
+    font-size: var(--step--1);
+    color: var(--ink-dim);
+  }
+</style>
+
+<script>
+  type FieldName = 'name' | 'guests' | 'contact' | 'attend';
+
+  const FIELD_IDS: Record<FieldName, string> = {
+    name: 'rsvp-name',
+    guests: 'rsvp-guests',
+    contact: 'rsvp-contact',
+    attend: 'rsvp-attend',
+  };
+
+  const FIELD_NAMES: FieldName[] = ['name', 'guests', 'contact', 'attend'];
+
+  const GUEST_MIN = 0;
+  const GUEST_MAX = 10;
+
+  interface RsvpHandle {
+    destroy: () => void;
+  }
+
+  interface RsvpWindow extends Window {
+    __rsvpFormHandle?: RsvpHandle;
+  }
+
+  function fieldNameForId(id: string): FieldName | null {
+    const found = FIELD_NAMES.find((name) => FIELD_IDS[name] === id);
+    return found ?? null;
+  }
+
+  function isInvalid(name: FieldName, control: HTMLInputElement): boolean {
+    if (name === 'attend') {
+      return !control.checked;
+    }
+
+    const value = control.value.trim();
+    if (value === '') {
+      return true;
+    }
+
+    if (name === 'guests') {
+      const parsed = Number(value);
+      return !Number.isInteger(parsed) || parsed < GUEST_MIN || parsed > GUEST_MAX;
+    }
+
+    return false;
+  }
+
+  /** Simulated submission: the form is validated and swapped, never sent. */
+  function initRsvpForm(): void {
+    const host = window as RsvpWindow;
+    host.__rsvpFormHandle?.destroy();
+    host.__rsvpFormHandle = undefined;
+
+    const maybeForm = document.querySelector<HTMLFormElement>('form[data-rsvp-form]');
+    if (maybeForm === null) {
+      return;
+    }
+    // Aliased to a non-nullable binding: TypeScript drops control-flow narrowing
+    // of captured variables inside hoisted function declarations.
+    const form: HTMLFormElement = maybeForm;
+
+    const ack = document.querySelector<HTMLElement>('[data-rsvp-ack]');
+    const ackName = document.querySelector<HTMLElement>('[data-rsvp-ack-name]');
+    const editButton = document.querySelector<HTMLButtonElement>('[data-rsvp-edit]');
+    const summary = document.querySelector<HTMLElement>('[data-rsvp-errors]');
+
+    function readControl(name: FieldName): HTMLInputElement | null {
+      const node = document.getElementById(FIELD_IDS[name]);
+      return node instanceof HTMLInputElement ? node : null;
+    }
+
+    const controls: Record<FieldName, HTMLInputElement | null> = {
+      name: readControl('name'),
+      guests: readControl('guests'),
+      contact: readControl('contact'),
+      attend: readControl('attend'),
+    };
+
+    function errorNode(name: FieldName): HTMLElement | null {
+      return document.querySelector<HTMLElement>(`[data-rsvp-field-error="${name}"]`);
+    }
+
+    function summaryItem(name: FieldName): HTMLElement | null {
+      return document.querySelector<HTMLElement>(`[data-rsvp-error-summary="${name}"]`);
+    }
+
+    let attempted = false;
+
+    function paint(name: FieldName): boolean {
+      const control = controls[name];
+      const invalid = control !== null && attempted && isInvalid(name, control);
+
+      if (control !== null) {
+        control.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+      }
+
+      const error = errorNode(name);
+      if (error !== null) {
+        error.hidden = !invalid;
+      }
+
+      const item = summaryItem(name);
+      if (item !== null) {
+        item.hidden = !invalid;
+      }
+
+      return invalid;
+    }
+
+    /** Repaints every field and returns the names that are still invalid. */
+    function refresh(): FieldName[] {
+      return FIELD_NAMES.filter((name) => paint(name));
+    }
+
+    function syncSummary(invalidNames: FieldName[]): void {
+      if (summary !== null) {
+        summary.hidden = invalidNames.length === 0;
+      }
+    }
+
+    function handleSubmit(event: Event): void {
+      // Nothing leaves the browser: the form never navigates and never posts.
+      event.preventDefault();
+      attempted = true;
+
+      const invalidNames = refresh();
+      syncSummary(invalidNames);
+
+      if (invalidNames.length > 0) {
+        summary?.focus();
+        return;
+      }
+
+      showAck();
+    }
+
+    function showAck(): void {
+      if (ack === null) {
+        return;
+      }
+
+      const nameControl = controls.name;
+      if (ackName !== null) {
+        // Guest input is echoed as text, never as markup.
+        ackName.textContent = nameControl === null ? '' : nameControl.value.trim();
+      }
+
+      form.hidden = true;
+      ack.hidden = false;
+      ack.focus();
+    }
+
+    function handleEdit(): void {
+      if (ack === null) {
+        return;
+      }
+
+      // The form is never reset, so the typed values come back untouched.
+      ack.hidden = true;
+      form.hidden = false;
+      controls.name?.focus();
+    }
+
+    function handleInput(event: Event): void {
+      if (!attempted) {
+        return;
+      }
+
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement)) {
+        return;
+      }
+
+      const name = fieldNameForId(target.id);
+      if (name === null) {
+        return;
+      }
+
+      syncSummary(refresh());
+    }
+
+    function destroy(): void {
+      form.removeEventListener('submit', handleSubmit);
+      form.removeEventListener('input', handleInput);
+      editButton?.removeEventListener('click', handleEdit);
+    }
+
+    form.addEventListener('submit', handleSubmit);
+    form.addEventListener('input', handleInput);
+    editButton?.addEventListener('click', handleEdit);
+
+    host.__rsvpFormHandle = { destroy };
+  }
+
+  initRsvpForm();
+</script>

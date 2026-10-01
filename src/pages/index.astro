@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import MatrixRain from '../components/MatrixRain.astro';
+import SelectedReveal from '../components/SelectedReveal.astro';
+import Countdown from '../components/Countdown.astro';
+import Briefing from '../components/Briefing.astro';
+import Rsvp from '../components/Rsvp.astro';
+import AudioToggle from '../components/AudioToggle.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<BaseLayout>
+  <MatrixRain />
+
+  {/* Section order: hero → decrypt reveal → countdown → briefing → RSVP. */}
+  <main id="main">
+    <Hero />
+    <SelectedReveal />
+    <Countdown />
+    <Briefing />
+    <Rsvp />
+  </main>
+
+  <AudioToggle />
+  <SiteFooter />
+</BaseLayout>
+
+<script>
+  /*
+   * `.reveal` content is legible by default; hidden state only exists under
+   * `html.js`, so this page-level observer is what flips `.is-visible` once a
+   * section reaches the viewport. Each target is unobserved after revealing, so
+   * the page never re-hides content and the registry keeps a hot reload from
+   * stacking observers.
+   */
+  interface RevealHandle {
+    destroy: () => void;
+  }
+
+  interface RevealWindow extends Window {
+    __revealHandle?: RevealHandle;
+  }
+
+  function initReveal(): void {
+    const host = window as RevealWindow;
+    host.__revealHandle?.destroy();
+    host.__revealHandle = undefined;
+
+    const targets = Array.from(document.querySelectorAll<HTMLElement>('.reveal'));
+    if (targets.length === 0) {
+      return;
+    }
+
+    // No observer means no way to know when a section arrives: reveal now.
+    if (typeof IntersectionObserver === 'undefined') {
+      targets.forEach((target) => {
+        target.classList.add('is-visible');
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -10% 0px' },
+    );
+
+    targets.forEach((target) => {
+      observer.observe(target);
+    });
+
+    host.__revealHandle = {
+      destroy: () => {
+        observer.disconnect();
+      },
+    };
+  }
+
+  initReveal();
+</script>

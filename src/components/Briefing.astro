@@ -1,0 +1,135 @@
+---
+import { invitation } from '../config/invitation';
+
+const { host, event, venue, rsvp, dressCode, copy } = invitation;
+---
+
+<section id="briefing" class="briefing" aria-labelledby="briefing-title">
+  <div class="shell briefing__inner">
+    <p class="mil-label">Dossier de misión</p>
+    <h2 id="briefing-title" class="briefing__title phosphor-glow">{copy.briefingTitle}</h2>
+    <p class="classified-stamp briefing__stamp">Uso interno</p>
+
+    <dl class="briefing__dossier panel reveal">
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Objetivo</dt>
+        <dd class="briefing__value">
+          {host.fullName} «{host.nickname}» — {host.age} años
+        </dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Fecha y hora</dt>
+        <dd class="briefing__value">
+          <span class="briefing__line">{event.timeLabel} · {event.tzLabel}</span>
+          <span class="briefing__line">Duración estimada: {event.durationLabel}</span>
+        </dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Punto de encuentro</dt>
+        <dd class="briefing__value">
+          <span class="briefing__line">{venue.name}</span>
+          <span class="briefing__line">{venue.address}, {venue.city}</span>
+          <a class="briefing__link" href={venue.mapUrl} target="_blank" rel="noopener noreferrer">
+            Abrir ubicación en el mapa
+          </a>
+        </dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Ventana de confirmación</dt>
+        <dd class="briefing__value">{rsvp.deadlineLabel}</dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Vestimenta</dt>
+        <dd class="briefing__value">
+          <span class="briefing__line">{dressCode.code}</span>
+          <span class="briefing__line">{dressCode.description}</span>
+        </dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Notas de acceso</dt>
+        <dd class="briefing__value">{venue.notes}</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .briefing {
+    position: relative;
+    padding-block: var(--space-8);
+  }
+
+  .briefing__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .briefing__title {
+    font-size: var(--step-3);
+    color: var(--phos);
+    text-transform: uppercase;
+  }
+
+  .briefing__stamp {
+    align-self: flex-start;
+  }
+
+  .briefing__dossier {
+    display: grid;
+    gap: var(--space-5);
+    margin: 0;
+    margin-top: var(--space-4);
+    padding: var(--space-5);
+  }
+
+  .briefing__item {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .briefing__term {
+    align-self: start;
+  }
+
+  /* `dd` carries a UA margin-inline-start; the grid already spaces the rows. */
+  .briefing__value {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+    margin: 0;
+  }
+
+  .briefing__line {
+    display: block;
+  }
+
+  .briefing__link {
+    justify-self: start;
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Narrow screens keep stacked rows; wide screens get a two-column dossier. */
+  @media (min-width: 48rem) {
+    .briefing__item {
+      grid-template-columns: 13rem minmax(0, 1fr);
+      gap: var(--space-4);
+      align-items: baseline;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .briefing__dossier {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-7);
+    }
+  }
+</style>
