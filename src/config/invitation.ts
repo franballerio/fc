@@ -88,13 +88,12 @@ export const invitation = {
     notes: 'Al fondo de las canchas de hockey',
   },
   rsvp: {
-    // Both are still pending, so the briefing shows the bracket markers on purpose.
-    deadlineISO: '',
+    deadlineISO: '2026-10-02T15:00:00-03:00',
     deadlineLabel: 'Viernes 15:00 Hs',
     contactName: 'A mi, a quien sino',
     contactPhone: '1130605247',
     contactEmail: 'fran.ballerio@gmail.com',
-    whatsappUrl: 'https://web.whatsapp.com/',
+    whatsappUrl: 'https://wa.me/5491130605247',
   },
   dressCode: {
     code: 'Fachita bien piola',
