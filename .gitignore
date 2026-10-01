@@ -1,0 +1,9 @@
+# Local Pi runtime state
+.atl/
+
+# Node dependencies
+node_modules/
+
+# Astro build output and generated types
+dist/
+.astro/
