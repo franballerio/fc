@@ -48,7 +48,13 @@ const deadlineDateLabel = formatCalendarDate(rsvp.deadlineISO);
 
       <div class="briefing__item">
         <dt class="mil-label briefing__term">Ventana de confirmación</dt>
-        <dd class="briefing__value">{rsvp.deadlineLabel} · {deadlineDateLabel}</dd>
+        <dd class="briefing__value">
+          {
+            deadlineDateLabel === ''
+              ? rsvp.deadlineLabel
+              : `${rsvp.deadlineLabel} · ${deadlineDateLabel}`
+          }
+        </dd>
       </div>
 
       <div class="briefing__item">
