@@ -77,7 +77,7 @@ Non-goals: no database, no persistence, no analytics, no retry queue, no CAPTCHA
 
 | Task | Commit | Checks observed |
 | --- | --- | --- |
-| T1–T4 | `4a1d15b` feat: deliver rsvp confirmations to telegram through a vercel function | `npm run build` green, `output: 'static'`; `npm run check` 0 errors; browser E2E against a loopback fake Telegram |
+| T1–T4 | `150a3ef` feat: deliver rsvp confirmations to telegram through a vercel function | `npm run build` green, `output: 'static'`; `npm run check` 0 errors; browser E2E against a loopback fake Telegram |
 | T5 | same commit | Independent `gentle-ai-verify` security audit: no blocker; findings F1–F7 fixed in the same commit |
 | T6 | same commit | Browser E2E re-run: upstream text carries `Trae para tomar:` and no `Acompañantes:`; empty submit exposes the new field error linked to `#rsvp-drinks` |
 
