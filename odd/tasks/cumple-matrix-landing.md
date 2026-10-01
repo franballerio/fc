@@ -52,7 +52,7 @@ Non-goals:
 - [x] T7 — Military briefing section with invitation data
 - [x] T8 — Simulated RSVP form
 - [x] T9 — Optional audio (boot + typing) with toggle
-- [ ] T10 — Build verification, README and deploy notes
+- [x] T10 — Build verification, README and deploy notes
 
 ## Evidence log
 
@@ -100,10 +100,60 @@ Independent runtime evidence gathered by the orchestrator with Google Chrome hea
 The only runtime checks not covered: true 360 px visual overlap of the katakana glyph cells, and
 whether the sticky decrypt stage is broken by an ancestor `overflow`. Both need a human eyeball.
 
+### Independent audit (read-only `gentle-ai-verify` agent)
+
+Verdicts against the acceptance criteria, on the tree it re-baselined itself (HEAD `23015fd`):
+
+| Criterion | Verdict | Note |
+| --- | --- | --- |
+| 1 build / typecheck | PASS | both commands exit 0 |
+| 2 single source of content | PASS | all 27 config strings render; every remaining literal is UI chrome; no datum duplicated |
+| 3 `FUISTE SELECCIONADO` integrity | PASS | literal appears exactly once in `dist`, inside the `sr-only` span of the `h2` |
+| 4 no-JS and reduced-motion legibility | PASS | armed state provably unreachable in both; 19 glyph nodes before and after a second pass |
+| 5 timezone / past date | PASS (past half) | `Date.parse` applies the offset once; future-date ticking UNVERIFIED |
+| 6 briefing shows every datum | **FAIL** → fixed | event calendar date missing, `rsvp.deadlineISO` rendered nowhere |
+| 7 no exfiltration | PASS | 6 same-origin GETs in the session; no `fetch`/`XHR`/`beacon` anywhere |
+| 8 audio | PASS | `AudioContext` reachable only from the click handler |
+| 9 accessibility statics | PASS | 1 `h1`, matching `label[for]`, focus ring on all 9 tab stops |
+| 10 responsive 360→1920 | PASS | no element crosses the viewport edge at 6 widths |
+
+The audit also reported that the source changed under it mid-run (the no-JS fix landed during
+its first pass); it re-baselined and all verdicts above refer to `844be6e` sources.
+
+### Defects found by the audit and their fixes
+
+| ID | Defect | Fix |
+| --- | --- | --- |
+| D1 | Fixed audio control covered the hero date and the RSVP intro at 360 px | Document bottom reserve + icon-only collapse below 30 rem keeping the accessible name |
+| D2 | Briefing omitted the calendar date; `rsvp.deadlineISO` was dead config | Both now render, through one shared `src/lib/datetime.ts` helper replacing three copies |
+| D3 | `visibility: hidden` in the armed state removed the tail and CTA from the tab order and the a11y tree | `opacity: 0` plus a `:focus-within` escape hatch |
+| D4 | The reduced-motion claim in a comment was not enforced in CSS | Armed rules wrapped in `@media not (prefers-reduced-motion: reduce)` |
+| D5 | The page observer module was emitted after `</html>` | Moved to `src/scripts/reveal.ts` + `RevealObserver.astro`; script offset now before `</body>` |
+
+All five are closed in `40c3625`. Re-run after the fixes: reveal, RSVP invalid/valid submit, audio
+toggle, reduced-motion and no-JS paths all still PASS with zero console errors.
+
+### Still unverified (needs a human or a future event date)
+
+1. Countdown ticking with a **future** `event.dateISO` (the shipped placeholder short-circuits to
+   the finished state, so the increment branch never runs).
+2. Timer-leak freedom: idempotency was measured by node counts; leak freedom is code-read only.
+3. Audio audibility with real output.
+4. Screen-reader announcements with NVDA/JAWS/VoiceOver.
+5. Non-Chromium engines (Safari/iOS, Firefox): `200svh` sticky stage, `1ch` glyph clipping,
+   `@media not (…)` support.
+6. A real Lighthouse/axe run (criterion 9 is phrased as Lighthouse-observable; only the
+   underlying statics were checked).
+7. Full-page visual composition at 1440/1920 px, and the 360 px glyph overlap.
+
 ## Open risks carried by the workers
 
-- No headless browser pass yet: runtime behaviour of the decrypt, countdown, RSVP swap and
-  audio has only been verified by type check, build and static assertions on `dist/`.
-- `public/og-placeholder.svg` is an SVG; most social platforms do not render SVG previews.
+- `public/og-placeholder.svg` is an SVG; most social platforms do not render SVG previews, so it
+  should become a 1200×630 PNG/JPG before the link is shared.
+- Katakana glyph cells are clipped at `1ch`, which can clip wide glyphs and wrap the message at 360 px.
+- Fixed chrome can still overlay content mid-scroll; the reserve protects only the document tail.
+- The RSVP form is a simulation by design: it stores nothing and notifies nobody. Delivering it to a
+  real destination is a new decision with a privacy consequence, because the page currently
+  promises guests that nothing leaves the browser.
 - Without JavaScript the countdown board shows zeros; the real date stays visible in the meta line.
 - Katakana glyph cells are clipped at `1ch`, which can clip wide glyphs and wrap the message at 360px.
