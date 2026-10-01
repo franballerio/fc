@@ -13,6 +13,7 @@ const audioEnabled = features.audio;
         class="audio-toggle"
         type="button"
         aria-pressed="true"
+        aria-describedby="audio-toggle-hint"
         data-audio-state="pending"
         data-audio-toggle
       >
@@ -26,8 +27,8 @@ const audioEnabled = features.audio;
           {copy.audioToggleOff}
         </span>
       </button>
-      <p class="audio-toggle__hint" data-audio-toggle-hint>
-        El sonido arranca con tu primer toque.
+      <p id="audio-toggle-hint" class="audio-toggle__hint" data-audio-toggle-hint>
+        {copy.audioToggleHint}
       </p>
     </div>
   )

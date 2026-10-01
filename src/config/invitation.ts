@@ -56,6 +56,8 @@ export interface Invitation {
     briefingTitle: string;
     audioToggleOn: string;
     audioToggleOff: string;
+    /** Explains that the drone is armed but silent until the first gesture. */
+    audioToggleHint: string;
   };
   /** Runtime switches: turn whole sections of the page on or off. */
   features: {
@@ -113,6 +115,7 @@ export const invitation = {
     briefingTitle: 'BRIEFING DE LA MISIÓN',
     audioToggleOn: 'SONIDO ACTIVADO',
     audioToggleOff: 'SONIDO SILENCIADO',
+    audioToggleHint: 'El sonido arranca con tu primer toque.',
   },
   features: {
     matrixRain: true,

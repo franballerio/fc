@@ -215,9 +215,11 @@ The page is written to stay readable without JavaScript:
   acknowledgement is rendered locally and nothing leaves the browser.
 - Audio is on by default. Because browsers refuse to start sound outside a user
   gesture, the control ships already pressed and the drone starts at the guest's
-  first tap, click or key press anywhere on the page. If the browser still
-  refuses, the control drops to the silenced state and says so. The control
-  itself steps aside when JavaScript is off, since it could never work.
+  first tap, click or key press anywhere on the page — except a press on the
+  control itself, which silences the invitation instead. If the browser still
+  refuses to start, the control falls back to the silenced state; the refusal
+  itself is only visible in `data-audio-state`. The control itself steps aside
+  when JavaScript is off, since it could never work.
 
 ## Notes
 

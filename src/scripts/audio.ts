@@ -2,7 +2,7 @@
  * Synthesized ambience for the invitation, on by default.
  *
  * Everything is generated with the Web Audio API: a low drone bed, a short boot
- * blip on the first start and filtered-noise keystrokes while the decrypt runs.
+ * blip on every start and filtered-noise keystrokes while the decrypt runs.
  * No audio file, no network request. Browsers refuse to start audio outside a
  * user gesture, so the control ships pressed and the graph is built
  * synchronously inside the guest's first pointerdown or keydown.
@@ -25,6 +25,8 @@ const DRONE_RAMP_DOWN_TAU = 0.3;
 
 const KEYSTROKE_INTERVAL_MS = 90;
 const SUSPEND_DELAY_MS = 500;
+/** Upper bound for a resume() to settle before the control admits it is silent. */
+const ACTIVATION_TIMEOUT_MS = 1000;
 const NOISE_SECONDS = 1;
 
 /**
@@ -104,7 +106,11 @@ export function initAudioToggle(): void {
       labelOff.hidden = audible;
     }
     if (hint !== null) {
-      hint.hidden = state !== 'pending';
+      // The hint is the control's accessible description: it explains that the
+      // drone is armed but silent until the first gesture. It stays visible
+      // while that is true and leaves only once the outcome is known, i.e. the
+      // context is confirmed `running` or the attempt ended in `off`/`blocked`.
+      hint.hidden = state === 'running' || state === 'off' || state === 'blocked';
     }
   }
 
@@ -260,6 +266,43 @@ export function initAudioToggle(): void {
   }
 
   /**
+   * Resumes the context and confirms it actually reached `running`. A resume()
+   * can settle while the context stays suspended, so the outcome follows the
+   * context, never the promise: anything short of `running` is `blocked`, the
+   * only state that admits the sound is not playing. `stillCurrent` drops a
+   * settlement a newer attempt or an explicit silence already outran, and
+   * `onRunning` runs only for a confirmed live context.
+   */
+  function confirmRunning(
+    audio: AudioContext,
+    stillCurrent: () => boolean,
+    onRunning?: () => void,
+  ): void {
+    void audio
+      .resume()
+      .then(() => {
+        if (!stillCurrent()) {
+          return;
+        }
+        if (audio.state !== 'running') {
+          state = 'blocked';
+          paint();
+          return;
+        }
+        if (onRunning !== undefined) {
+          onRunning();
+        }
+      })
+      .catch(() => {
+        if (!stillCurrent()) {
+          return;
+        }
+        state = 'blocked';
+        paint();
+      });
+  }
+
+  /**
    * Builds and resumes the graph inside the current gesture. The AudioContext
    * constructor and the resume() call are synchronous; only the confirmation
    * that the context reached `running` is deferred.
@@ -276,30 +319,31 @@ export function initAudioToggle(): void {
 
     attemptId += 1;
     const id = attemptId;
-    const resume = audio.state === 'running' ? Promise.resolve() : audio.resume();
 
-    void resume
-      .then(() => {
-        if (destroyed || id !== attemptId) {
-          return;
-        }
-        // resume() can resolve while the context stays suspended.
-        if (audio.state !== 'running') {
-          state = 'blocked';
-          paint();
-          return;
-        }
+    // A resume() that neither resolves nor rejects (the gesture was not
+    // accepted as user activation, for example) must not leave the control
+    // frozen on `pending`. The bound reuses the suspend-timer slot so destroy()
+    // clears it, and the attempt id stops it from touching a newer state.
+    clearSuspendTimer();
+    suspendTimer = window.setTimeout(() => {
+      suspendTimer = 0;
+      if (destroyed || id !== attemptId || state !== 'pending') {
+        return;
+      }
+      state = 'blocked';
+      paint();
+    }, ACTIVATION_TIMEOUT_MS);
+
+    confirmRunning(
+      audio,
+      () => !destroyed && id === attemptId,
+      () => {
+        clearSuspendTimer();
         state = 'running';
         paint();
         startPlayback(audio, output, bed);
-      })
-      .catch(() => {
-        if (destroyed || id !== attemptId) {
-          return;
-        }
-        state = 'blocked';
-        paint();
-      });
+      },
+    );
   }
 
   /** Explicit silence: cancels any pending or in-flight activation. */
@@ -356,10 +400,22 @@ export function initAudioToggle(): void {
       return;
     }
 
-    // Only resume when the guest left the audio on.
-    if (state === 'running' && audio.state === 'suspended') {
-      audio.resume().catch(() => undefined);
+    // Only act when the guest left the audio on and the context is not live.
+    // Anything short of `running` shares the gesture path's confirmation, so a
+    // rejected, still-suspended or already-closed context falls to `blocked`
+    // instead of leaving the control claiming sound it cannot produce.
+    if (state !== 'running' || audio.state === 'running') {
+      return;
     }
+
+    if (audio.state === 'closed') {
+      // A closed context can never play again, so resume() would only reject.
+      state = 'blocked';
+      paint();
+      return;
+    }
+
+    confirmRunning(audio, () => !destroyed && state === 'running');
   }
 
   function isToggleGesture(event: Event): boolean {
@@ -446,7 +502,13 @@ export function initAudioToggle(): void {
 
   if (host.__audioToggleUnloadBound !== true) {
     host.__audioToggleUnloadBound = true;
-    window.addEventListener('pagehide', () => {
+    window.addEventListener('pagehide', (event) => {
+      // A back/forward-cache navigation must keep the live control: nothing
+      // re-initialises on restore, so tearing the graph down here would leave
+      // the button claiming sound it can no longer produce.
+      if (event.persisted) {
+        return;
+      }
       host.__audioToggleHandle?.destroy();
       host.__audioToggleHandle = undefined;
     });
