@@ -116,6 +116,35 @@ same-origin check (F7).
 Accepted residual risk, documented in the README: `elapsedMs` is client-supplied, so the spam
 guards are cosmetic against a script; the effective next step is a per-IP limit or Turnstile.
 
+## Post-deploy incident: `ERR_MODULE_NOT_FOUND`
+
+The first production deploy crashed with:
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/api/telegram.ts'
+imported from /var/task/api/rsvp.js
+```
+
+Cause: Vercel transpiles each file under `api/` on its own instead of bundling it, so the
+`from './telegram.ts'` specifier survived compilation and Node could not resolve a `.ts`
+path at runtime. The earlier local check used esbuild **with `--bundle`**, which resolves
+and inlines that import: it tested the wrong tool and produced a false green. The writer's
+own risk note flagged this exact case and it was dismissed on that bad evidence.
+
+A second problem with the same design, unnoticed until then: **every file under `api/` is
+published as its own public route**, so `api/telegram.ts` was also an addressable endpoint.
+
+Fix: `api/telegram.ts` is merged into `api/rsvp.ts`. The function is now one
+self-contained file with no relative imports.
+
+Verification reproducing the failing mode instead of a convenient one: `tsc api/rsvp.ts
+--ignoreConfig --outDir …` (per-file transpile, no bundling) emits `rsvp.js` with **zero**
+imports, and the full six-scenario browser E2E suite passes against that emitted artifact
+rather than against the `.ts` source. The same per-file transpile of the pre-fix source
+keeps the `from './telegram.ts'` line, which is exactly the production failure.
+
+Lesson: check the artifact the platform actually runs, never a bundler convenience.
+
 ## T7 — Host actions before sharing the link
 
 1. Create the bot with @BotFather, message it once (a bot cannot open the chat), then read the
