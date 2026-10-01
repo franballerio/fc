@@ -17,6 +17,15 @@ const rsvpEnabled = features.rsvp;
           navegador: no viaja a ningún servidor ni a ninguna base de datos.
         </p>
 
+        <noscript>
+          <p class="rsvp__noscript panel">
+            Este formulario se resuelve en tu navegador, así que necesita JavaScript. Para
+            confirmar, escribile a {rsvp.contactName} por{' '}
+            <a href={rsvp.whatsappUrl} rel="noopener noreferrer">WhatsApp</a>, al teléfono{' '}
+            {rsvp.contactPhone} o a {rsvp.contactEmail}, antes de {rsvp.deadlineLabel}.
+          </p>
+        </noscript>
+
         <form class="rsvp__form panel reveal" data-rsvp-form novalidate>
           <div class="rsvp__errors" data-rsvp-errors role="alert" tabindex="-1" hidden>
             <p class="rsvp__errors-title">Revisá estos datos antes de enviar:</p>
@@ -304,6 +313,25 @@ const rsvpEnabled = features.rsvp;
   .rsvp__ack-fallback {
     font-size: var(--step--1);
     color: var(--ink-dim);
+  }
+  /*
+   * Without JavaScript the acknowledgement cannot be rendered locally and a
+   * plain submit would only bounce the answer back into the URL, so the form
+   * steps aside for the contact route shown by the <noscript> block.
+   */
+  :global(html:not(.js)) .rsvp__form {
+    display: none;
+  }
+
+  .rsvp__noscript {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--measure);
+    font-size: var(--step-0);
+  }
+
+  .rsvp__noscript a {
+    color: var(--phos);
   }
 </style>
 

@@ -76,7 +76,7 @@ const countdownSummary = `La cita es el ${eventDateLabel} a las ${event.timeLabe
           <p class="countdown__finished" data-countdown-finished hidden></p>
         </div>
 
-        <p class="sr-only">{countdownSummary}</p>
+        <p class="countdown__summary sr-only">{countdownSummary}</p>
       </div>
     </section>
   )
@@ -164,6 +164,26 @@ const countdownSummary = `La cita es el ${eventDateLabel} a las ${event.timeLabe
     .countdown__units {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+  }
+  /*
+   * Without JavaScript the counters can never tick, so the animated board is
+   * dropped and the static sentence takes its place as regular text.
+   */
+  :global(html:not(.js)) .countdown__board {
+    display: none;
+  }
+
+  :global(html:not(.js)) .countdown__summary {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    font-size: var(--step-1);
+    color: var(--ink);
   }
 </style>
 
