@@ -22,7 +22,7 @@ const {
 
 const siteUrl = Astro.site ?? Astro.url;
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl);
-const socialImageUrl = new URL('/og-placeholder.svg', siteUrl);
+const socialImageUrl = new URL('/og-image.png', siteUrl);
 ---
 
 <!doctype html>
@@ -37,7 +37,7 @@ const socialImageUrl = new URL('/og-placeholder.svg', siteUrl);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalUrl.href} />
 
-    <!-- Open Graph placeholders; the owner replaces the image asset later. -->
+    <!-- Social preview card: 1200x630, generated from the design system. -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_AR" />
     <meta property="og:site_name" content={copy.codename} />
@@ -45,7 +45,15 @@ const socialImageUrl = new URL('/og-placeholder.svg', siteUrl);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl.href} />
     <meta property="og:image" content={socialImageUrl.href} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content={`${host.fullName} cumple ${host.age} años — ${copy.codename}`}
+    />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={socialImageUrl.href} />
 
     <!-- Progressive enhancement flag: scroll reveals only arm when JS is on. -->
     <script is:inline>

@@ -148,8 +148,9 @@ toggle, reduced-motion and no-JS paths all still PASS with zero console errors.
 
 ## Open risks carried by the workers
 
-- `public/og-placeholder.svg` is an SVG; most social platforms do not render SVG previews, so it
-  should become a 1200×630 PNG/JPG before the link is shared.
+- ~~`public/og-placeholder.svg` was an SVG, which social platforms do not render.~~ Resolved:
+  `public/og-image.png` is a 1200×630 card generated from the design system, wired as
+  `og:image` with its dimensions and `twitter:image`.
 - Katakana glyph cells are clipped at `1ch`, which can clip wide glyphs and wrap the message at 360 px.
 - Fixed chrome can still overlay content mid-scroll; the reserve protects only the document tail.
 - The RSVP form is a simulation by design: it stores nothing and notifies nobody. Delivering it to a

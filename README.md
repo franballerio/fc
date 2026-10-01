@@ -73,10 +73,12 @@ browser and never calls the endpoint.
 
 The build is plain static files, so any static host works.
 
-1. Set the real URL in `astro.config.mjs` (`site: 'https://example.invalid'`) so the
-   canonical and Open Graph tags are correct. Also replace `public/og-placeholder.svg`
-   with a real image (PNG or JPG, 1200×630) and point `og:image` at it — most social
-   platforms do not render SVG previews.
+1. `astro.config.mjs` already points `site` at the production domain, which is what
+   builds the absolute canonical, `og:url` and `og:image` URLs. Change it if the
+   invitation moves to another domain. `public/og-image.png` is the 1200×630 social
+   preview card: regenerate it (headless screenshot of a 1200×630 page, then
+   `magick … -strip -colors 256`) when the headline or the date changes, and keep it
+   under roughly 300 KB so messaging apps render it.
 2. Run `pnpm build`.
 3. Publish the `dist/` directory:
 
