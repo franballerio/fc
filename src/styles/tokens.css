@@ -1,0 +1,69 @@
+/*
+ * Design tokens. The only place where palette, type scale, spacing and timing
+ * constants are declared; components consume them as custom properties.
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* Palette */
+  --void: #030704;
+  --panel: #071a0e;
+  --phos: #33ff66;
+  --phos-dim: #17a34a;
+  --phos-glow: rgba(51, 255, 102, 0.35);
+  --olive: #6b7d5a;
+  --khaki: #c8c3a8;
+  --alert: #ffb000;
+  --stamp: #c62828;
+
+  /* Derived surfaces and ink */
+  --panel-strong: #04120a;
+  --ink: var(--khaki);
+  --ink-dim: #8f8c74;
+  --line: rgba(51, 255, 102, 0.18);
+  --line-strong: rgba(51, 255, 102, 0.45);
+
+  /* Type */
+  --font-mono: ui-monospace, "JetBrains Mono", "IBM Plex Mono", "SFMono-Regular", Menlo,
+    "Courier New", monospace;
+  --step--1: clamp(0.78rem, 0.74rem + 0.2vw, 0.9rem);
+  --step-0: clamp(0.95rem, 0.9rem + 0.25vw, 1.08rem);
+  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
+  --step-2: clamp(1.45rem, 1.25rem + 1vw, 2rem);
+  --step-3: clamp(1.9rem, 1.5rem + 2vw, 3rem);
+  --step-4: clamp(2.4rem, 1.75rem + 3.5vw, 4.5rem);
+  --leading-tight: 1.15;
+  --leading-body: 1.6;
+
+  /* Space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+
+  /* Layout */
+  --shell-max: 72rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --measure: 62ch;
+  --radius: 2px;
+
+  /* Depth */
+  --z-rain: 0;
+  --z-content: 1;
+  --z-vignette: 2;
+  --z-scanlines: 3;
+  /* Interactive chrome that must stay above the CRT overlay layers. */
+  --z-control: 4;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur-base: 320ms;
+  --dur-slow: 900ms;
+}

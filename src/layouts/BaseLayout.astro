@@ -1,0 +1,61 @@
+---
+import '../styles/tokens.css';
+import '../styles/global.css';
+
+import { invitation } from '../config/invitation';
+
+interface Props {
+  /** Overrides the document title; defaults to the configured codename. */
+  title?: string;
+  /** Overrides the meta description. */
+  description?: string;
+}
+
+const { host, event, venue, copy } = invitation;
+
+const defaultDescription = `${host.fullName} cumple ${host.age} años. ${event.timeLabel} en ${venue.name}, ${venue.city}.`;
+
+const {
+  title = `${copy.operationTitle} · ${copy.codename}`,
+  description = defaultDescription,
+} = Astro.props;
+
+const siteUrl = Astro.site ?? Astro.url;
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl);
+const socialImageUrl = new URL('/og-placeholder.svg', siteUrl);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#030704" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl.href} />
+
+    <!-- Open Graph placeholders; the owner replaces the image asset later. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content={copy.codename} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl.href} />
+    <meta property="og:image" content={socialImageUrl.href} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Progressive enhancement flag: scroll reveals only arm when JS is on. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Ir al contenido</a>
+    <slot />
+    <div class="crt-vignette crt-flicker"></div>
+    <div class="crt-scanlines" aria-hidden="true"></div>
+  </body>
+</html>

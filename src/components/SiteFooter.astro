@@ -1,0 +1,52 @@
+---
+import { invitation } from '../config/invitation';
+
+const { host, venue, copy } = invitation;
+const buildYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="shell site-footer__inner">
+    <p class="site-footer__line">
+      <span class="site-footer__prompt" aria-hidden="true">guest@void:~$</span>
+      {copy.codename} · {host.nickname} · {venue.city}
+    </p>
+    <p class="site-footer__meta">
+      Terminal estática — {buildYear} · funciona sin conexión
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: var(--z-content);
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--line);
+    background-color: var(--panel-strong);
+    font-size: var(--step--1);
+    color: var(--ink-dim);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    justify-content: space-between;
+  }
+
+  .site-footer__line {
+    color: var(--phos-dim);
+  }
+
+  .site-footer__prompt {
+    margin-right: var(--space-2);
+    color: var(--olive);
+  }
+
+  .site-footer__meta {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--olive);
+  }
+</style>

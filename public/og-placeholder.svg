@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Placeholder social card">
+  <rect width="1200" height="630" fill="#030704" />
+  <rect x="40" y="40" width="1120" height="550" fill="none" stroke="#17a34a" stroke-width="3" />
+  <text x="600" y="300" fill="#33ff66" font-family="monospace" font-size="72" text-anchor="middle">
+    FUISTE SELECCIONADO
+  </text>
+  <text x="600" y="380" fill="#6b7d5a" font-family="monospace" font-size="34" text-anchor="middle">
+    TODO(owner): replace this social card asset
+  </text>
+</svg>
