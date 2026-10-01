@@ -1,36 +1,12 @@
 ---
 import { invitation } from '../config/invitation';
+import { formatCalendarDate } from '../lib/datetime';
 
 const { event, features } = invitation;
 
 const countdownEnabled = features.countdown;
 
-/**
- * The ISO string carries its own numeric offset, so the calendar date is read
- * from the literal text instead of being parsed with the build machine zone.
- */
-function formatEventDate(iso: string): string {
-  const [datePart = ''] = iso.split('T');
-  const [yearText = '', monthText = '', dayText = ''] = datePart.split('-');
-
-  const year = Number.parseInt(yearText, 10);
-  const month = Number.parseInt(monthText, 10);
-  const day = Number.parseInt(dayText, 10);
-
-  if ([year, month, day].some((value) => !Number.isFinite(value))) {
-    return iso;
-  }
-
-  return new Intl.DateTimeFormat('es-AR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(Date.UTC(year, month - 1, day));
-}
-
-const eventDateLabel = formatEventDate(event.dateISO);
+const eventDateLabel = formatCalendarDate(event.dateISO);
 
 // Static sentence: the only countdown text assistive technology ever receives.
 const countdownSummary = `La cita es el ${eventDateLabel} a las ${event.timeLabel} (${event.tzLabel}), con una duración estimada de ${event.durationLabel}.`;

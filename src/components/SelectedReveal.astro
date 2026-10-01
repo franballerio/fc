@@ -158,19 +158,31 @@ const messageCells = Array.from(copy.selectedMessage);
   /*
    * "armed" is set by the decrypt script only when it will really animate, so
    * the tail and the CTA stay visible with no JavaScript and under
-   * prefers-reduced-motion (where CSS also forces them back to full opacity).
+   * prefers-reduced-motion. The motion guard is the CSS half of that promise;
+   * the script's early return before arming is the other half.
+   *
+   * Hidden means `opacity: 0`, not `visibility: hidden`, so while armed the
+   * elements stay in the tab order and in the accessibility tree.
    */
-  [data-selected-state='armed'] [data-selected-tail],
-  [data-selected-state='armed'] [data-selected-cta] {
-    opacity: 0;
-    visibility: hidden;
-  }
+  @media not (prefers-reduced-motion: reduce) {
+    [data-selected-state='armed'] [data-selected-tail],
+    [data-selected-state='armed'] [data-selected-cta] {
+      opacity: 0;
+    }
 
-  [data-selected-state='armed'] [data-selected-tail].is-revealed,
-  [data-selected-state='armed'] [data-selected-cta].is-revealed {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity var(--dur-slow) var(--ease-out);
+    [data-selected-state='armed'] [data-selected-tail].is-revealed,
+    [data-selected-state='armed'] [data-selected-cta].is-revealed {
+      opacity: 1;
+      transition: opacity var(--dur-slow) var(--ease-out);
+    }
+
+    /*
+     * Focus escape hatch: a keyboard guest can tab into the CTA while it is
+     * still transparent, and focus must make it fully visible.
+     */
+    [data-selected-state='armed'] [data-selected-cta]:focus-within {
+      opacity: 1;
+    }
   }
 </style>
 

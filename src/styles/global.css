@@ -36,6 +36,12 @@ body {
   font-size: var(--step-0);
   line-height: var(--leading-body);
   overflow-wrap: break-word;
+  /*
+   * The audio control is fixed to the viewport bottom, so the document keeps a
+   * strip clear for it: its offset plus its tallest (wrapped, two-line) box,
+   * sized from the space tokens so fixed chrome never covers the last content.
+   */
+  padding-block-end: calc(var(--space-5) + var(--space-8));
 }
 
 img,

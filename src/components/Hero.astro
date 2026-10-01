@@ -1,19 +1,10 @@
 ---
 import { invitation } from '../config/invitation';
+import { formatCalendarDate } from '../lib/datetime';
 
 const { host, event, venue, copy } = invitation;
 
-// The calendar date is read straight from the ISO string so the rendered label
-// never shifts with the timezone of the machine that builds the site.
-const [year, month, day] = event.dateISO.slice(0, 10).split('-').map(Number);
-
-const dateLabel = new Intl.DateTimeFormat('es-AR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-}).format(Date.UTC(year, month - 1, day));
+const dateLabel = formatCalendarDate(event.dateISO);
 ---
 
 <section class="hero" aria-labelledby="hero-title">

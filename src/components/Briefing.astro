@@ -1,7 +1,11 @@
 ---
 import { invitation } from '../config/invitation';
+import { formatCalendarDate } from '../lib/datetime';
 
 const { host, event, venue, rsvp, dressCode, copy } = invitation;
+
+const eventDateLabel = formatCalendarDate(event.dateISO);
+const deadlineDateLabel = formatCalendarDate(rsvp.deadlineISO);
 ---
 
 <section id="briefing" class="briefing" aria-labelledby="briefing-title">
@@ -16,6 +20,11 @@ const { host, event, venue, rsvp, dressCode, copy } = invitation;
         <dd class="briefing__value">
           {host.fullName} «{host.nickname}» — {host.age} años
         </dd>
+      </div>
+
+      <div class="briefing__item">
+        <dt class="mil-label briefing__term">Fecha</dt>
+        <dd class="briefing__value">{eventDateLabel}</dd>
       </div>
 
       <div class="briefing__item">
@@ -39,7 +48,7 @@ const { host, event, venue, rsvp, dressCode, copy } = invitation;
 
       <div class="briefing__item">
         <dt class="mil-label briefing__term">Ventana de confirmación</dt>
-        <dd class="briefing__value">{rsvp.deadlineLabel}</dd>
+        <dd class="briefing__value">{rsvp.deadlineLabel} · {deadlineDateLabel}</dd>
       </div>
 
       <div class="briefing__item">
